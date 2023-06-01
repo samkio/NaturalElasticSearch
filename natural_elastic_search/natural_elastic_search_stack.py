@@ -22,5 +22,8 @@ class NaturalElasticSearchStack(Stack):
             "SearchFunction",
             entry=path.join(path.dirname(path.abspath(__file__)), "lambdas/search"),
             runtime=Runtime.PYTHON_3_10,
+            environment={
+                "OS_CLUSTER_ENDPOINT": opensearch.domain_endpoint
+            }
         )
         opensearch.grant_index_read_write("docs", searchFunction)
