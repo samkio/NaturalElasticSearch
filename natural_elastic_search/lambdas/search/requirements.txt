@@ -1,0 +1,2 @@
+boto3==1.26.145
+opensearch-py==2.2.0

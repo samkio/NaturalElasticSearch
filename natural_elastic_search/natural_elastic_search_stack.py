@@ -1,6 +1,7 @@
 from aws_cdk import Stack, RemovalPolicy
 from aws_cdk.aws_opensearchservice import Domain, EngineVersion
 from aws_cdk.aws_lambda import Function, Runtime, Code
+from aws_cdk.aws_lambda_python_alpha import PythonFunction
 from constructs import Construct
 from os import path
 
@@ -16,12 +17,10 @@ class NaturalElasticSearchStack(Stack):
             removal_policy=RemovalPolicy.DESTROY,
         )
 
-        searchFunction = Function(
+        searchFunction = PythonFunction(
             self,
             "SearchFunction",
-            code=Code.from_asset(
-                path.join(path.dirname(path.abspath(__file__)), "handler")
-            ),
-            handler="search_lambda.main",
+            entry=path.join(path.dirname(path.abspath(__file__)), "lambdas/search"),
             runtime=Runtime.PYTHON_3_10,
         )
+        opensearch.grant_index_read_write("docs", searchFunction)
