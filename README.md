@@ -56,3 +56,7 @@ command.
  * `cdk diff`         compare deployed stack with current state
  * `cdk docs`         open CDK documentation
  * `python -m pytest` runs unit tests
+
+ ## Notes
+
+ Docker must be installed to bundle the python lambda with the appropriate packages.
