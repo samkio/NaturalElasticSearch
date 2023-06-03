@@ -3,7 +3,7 @@ from aws_lambda_powertools import Logger
 import boto3
 import json
 
-logger = Logger()
+logger = Logger(service="natural_elastic_search.opensearch")
 
 
 class OpenSearchClient:
@@ -32,7 +32,7 @@ class OpenSearchClient:
         """
         Indexes documents into the OpenSearch service
 
-        :docs stage: The documents to index.
+        :param docs: The documents to index.
         """
 
         try:
@@ -52,7 +52,7 @@ class OpenSearchClient:
         """
         Queries documents from the OpenSearch service
 
-        :query: The query to use.
+        :param query: The query to use.
         :return: The response from the query.
         """
 

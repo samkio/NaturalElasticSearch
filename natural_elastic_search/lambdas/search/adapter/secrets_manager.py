@@ -2,7 +2,7 @@ from botocore.exceptions import ClientError
 from aws_lambda_powertools import Logger
 import boto3
 
-logger = Logger()
+logger = Logger(service="natural_elastic_search.secrets_manager")
 
 
 class SecretsManagerSecret:
@@ -21,9 +21,7 @@ class SecretsManagerSecret:
 
         :param stage: The stage of the secret to retrieve. If this is None, the
                       current stage is retrieved.
-        :return: The value of the secret. When the secret is a string, the value is
-                 contained in the `SecretString` field. When the secret is bytes,
-                 it is contained in the `SecretBinary` field.
+        :return: The value of the secret.
         """
         if self.name is None:
             raise ValueError
