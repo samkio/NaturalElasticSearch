@@ -1,4 +1,4 @@
-from aws_cdk import Stack, RemovalPolicy
+from aws_cdk import Duration, Stack, RemovalPolicy
 from aws_cdk.aws_opensearchservice import Domain, EngineVersion
 from aws_cdk.aws_lambda import Runtime
 from aws_cdk.aws_lambda_python_alpha import PythonFunction
@@ -29,6 +29,8 @@ class NaturalElasticSearchStack(Stack):
                 "OS_CLUSTER_ENDPOINT": opensearch.domain_endpoint,
                 "OPEN_AI_API_KEY_SECRET": open_api_key_secret.secret_name,
             },
+            timeout=Duration.seconds(20),
+            memory_size=512,
         )
         opensearch.grant_index_read_write("docs", searchFunction)
         open_api_key_secret.grant_read(searchFunction)
