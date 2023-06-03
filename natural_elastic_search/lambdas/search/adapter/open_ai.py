@@ -8,10 +8,9 @@ class OpenAIClient:
         """
         :param api_key: An OpenAI key to use.
         """
-        self.api_key = api_key
+        openai.api_key = api_key
 
     def query_to_open_search_query(self, query: str) -> str:
-        openai.api_key = self.api_key
         response = openai.Completion.create(
             model="text-davinci-003",
             prompt="""Convert this text to an OPENSEARCH v1 (ElasticSearch) query 

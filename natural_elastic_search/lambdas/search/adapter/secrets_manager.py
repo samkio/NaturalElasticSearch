@@ -12,7 +12,7 @@ class SecretsManagerSecret:
         """
         :param secretsmanager_client: A Boto3 Secrets Manager client.
         """
-        self.secretsmanager_client = boto3.client('secretsmanager')
+        self.secretsmanager_client = boto3.client("secretsmanager")
         self.name = name
 
     def get_value(self, stage=None):
@@ -39,4 +39,4 @@ class SecretsManagerSecret:
             logger.exception(e)
             raise
         else:
-            return response
+            return response["SecretString"]
