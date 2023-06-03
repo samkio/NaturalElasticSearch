@@ -10,7 +10,7 @@ openai_client = OpenAIClient(openai_api_key)
 
 def handler(event, context):
     # Pre-load data into the OS cluster
-    os_client.index(
+    os_client.index_docs(
         [
             {"title": "Moneyball", "director": "Bennett Miller", "year": "2011"},
             {
@@ -28,14 +28,25 @@ def handler(event, context):
         ]
     )
 
-    # Perform search
-    response = os_client.search(
-        {
-            "size": 5,
-            "query": {
-                "multi_match": {"query": "miller", "fields": ["title^2", "director"]}
-            },
-        }
+    # Perform static defined search
+    response = os_client.query(
+        '{"size": 5,"query": {"multi_match": {"query": "miller", "fields": ["title^2", "director"]}}}'
     )
-    print("\nSearch results:")
+    print("\nStatic search results:")
+    print(response)
+
+    # Perform natural search #1
+    query = openai_client.query_to_open_search_query(
+        "Find all movies that were made after 2010"
+    )
+    response = os_client.query('{"size": 5,%s}'.format(query))
+    print("\nNatural #1 search results:")
+    print(response)
+
+    # Perform natural search #2
+    query = openai_client.query_to_open_search_query(
+        "Find all movies that were directed by George Lucas with Star Wars in the title"
+    )
+    response = os_client.query('{"size": 5,%s}'.format(query))
+    print("\nNatural #2 search results:")
     print(response)
