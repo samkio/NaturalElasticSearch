@@ -1,71 +1,41 @@
-from opensearchpy import OpenSearch, RequestsHttpConnection, AWSV4SignerAuth
-import boto3
+from adapter.open_search import OpenSearchClient
+from adapter.secrets_manager import SecretsManagerSecret
+from adapter.open_ai import OpenAIClient
 import os
 
-host = os.environ["OS_CLUSTER_ENDPOINT"]
-region = boto3.session.Session().region_name
-service = "es"
-credentials = boto3.Session().get_credentials()
-auth = AWSV4SignerAuth(credentials, region, service)
-
-client = OpenSearch(
-    hosts=[{"host": host, "port": 443}],
-    http_auth=auth,
-    use_ssl=True,
-    verify_certs=True,
-    connection_class=RequestsHttpConnection,
-    pool_maxsize=20,
-)
+os_client = OpenSearchClient(os.environ["OS_CLUSTER_ENDPOINT"], "docs")
+openai_api_key = SecretsManagerSecret(os.environ["OPEN_AI_API_KEY_SECRET"]).get_value()
+openai_client = OpenAIClient(openai_api_key)
 
 
 def handler(event, context):
-    index_name = "docs"
-
-    client.index(
-        index=index_name,
-        body={"title": "Moneyball", "director": "Bennett Miller", "year": "2011"},
-        id="1",
-        refresh=True,
-    )
-    client.index(
-        index=index_name,
-        body={
-            "title": "Star Wars: Episode I - The Phantom Menace",
-            "director": "George Lucas",
-            "year": "1999",
-        },
-        id="2",
-        refresh=True,
-    )
-    client.index(
-        index=index_name,
-        body={"title": "28 Days Later", "director": "Danny Boyle", "year": "2002"},
-        id="3",
-        refresh=True,
-    )
-    client.index(
-        index=index_name,
-        body={"title": "Shaun of the Dead", "director": "Edgar Wright", "year": "2004"},
-        id="4",
-        refresh=True,
-    )
-    client.index(
-        index=index_name,
-        body={
-            "title": "The Grand Budapest Hotel",
-            "director": "Wes Anderson",
-            "year": "2014",
-        },
-        id="5",
-        refresh=True,
+    # Pre-load data into the OS cluster
+    os_client.index(
+        [
+            {"title": "Moneyball", "director": "Bennett Miller", "year": "2011"},
+            {
+                "title": "Star Wars: Episode I - The Phantom Menace",
+                "director": "George Lucas",
+                "year": "1999",
+            },
+            {"title": "28 Days Later", "director": "Danny Boyle", "year": "2002"},
+            {"title": "Shaun of the Dead", "director": "Edgar Wright", "year": "2004"},
+            {
+                "title": "The Grand Budapest Hotel",
+                "director": "Wes Anderson",
+                "year": "2014",
+            },
+        ]
     )
 
-    q = "miller"
-    query = {
-        "size": 5,
-        "query": {"multi_match": {"query": q, "fields": ["title^2", "director"]}},
-    }
-
-    response = client.search(body=query, index=index_name)
+    # Perform search
+    response = os_client.search(
+        {
+            "size": 5,
+            "query": {
+                "multi_match": {"query": "miller", "fields": ["title^2", "director"]}
+            },
+        }
+    )
     print("\nSearch results:")
     print(response)

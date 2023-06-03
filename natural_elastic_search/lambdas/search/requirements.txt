@@ -1,2 +1,4 @@
+aws_lambda_powertools==2.16.1
 boto3==1.26.145
+openai==0.27.7
 opensearch-py==2.2.0
